@@ -146,6 +146,8 @@ tleap_file = open(tleap_folder,'w')
 
 tleap_source()
 
+structure = parsePDB(pdbid,compressed=False)
+
 het = structure.select('hetero')
 het1 = het.getResnames()
 het = het1.tolist()
@@ -154,8 +156,6 @@ het1 = unique(het)
 prRed('#.....................................................#')
 prGreen('The hetero atoms in the protein are {0}'.format(het1))
 prRed('#.....................................................#')
-
-structure = parsePDB(pdbid,compressed=False)
 
 # Checking for the category of the ligand-cofactor
 prGreen("Please select the category of the ligand: \n 1. ligand-organic molecule:cofactor-doesnot exist \
