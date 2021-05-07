@@ -1,4 +1,5 @@
 from prody import *
+import subprocess
 import os
 import re
 from colorama import init, Fore, Back, Style
@@ -60,9 +61,9 @@ def cofactor_write():
 	tleap_file.write('cofactor = loadmol2 cofactor.mol2 \n \n')
 
 def tleap_source():
-	tleap_file.write('source /home/divya/softwares/anaconda3/dat/leap/cmd/leaprc.protein.ff14SB \n')
-	tleap_file.write('source /home/divya/softwares/anaconda3/dat/leap/cmd/leaprc.gaff2 \n')
-	tleap_file.write('source /home/divya/softwares/anaconda3/dat/leap/cmd/leaprc.water.tip3p \n \n \n')
+	tleap_file.write('source /home/bhuvanesh/softwares/miniconda3/envs/amber/dat/leap/cmd/leaprc.protein.ff14SB\n')
+	tleap_file.write('source /home/bhuvanesh/softwares/miniconda3/envs/amber/dat/leap/cmd/leaprc.gaff2 \n')
+	tleap_file.write('source /home/bhuvanesh/softwares/miniconda3/envs/amber/dat/leap/cmd/leaprc.water.tip3p \n\n\n')
 
 def ismetal(sub,mcode):
 	met = sub.select("resname {0}".format(mcode))
@@ -99,7 +100,7 @@ def chainsplit(chain_id):
 				tleap_file.write('metal_{0}_{1} = loadpdb metal_{0}_{1}.pdb'.format(ele,chain_id))
 
 
-def missing(name):
+def missing(name, pdbid, chain):
 	sub = parsePDB(name)
 	subs = sub.select('calpha')
 	res = subs.getResnums()
@@ -117,11 +118,18 @@ def missing(name):
 		except:
 			print('')
 
+	if cy != 0:
+		print(Fore.YELLOW + "There are missing residues, Therefore modelling chain: {}".format(chain) + Style.RESET_ALL)
+		print("python /mnt/e/ProteinLigand/protein_ligand_preparation/ModellingScript.py {}.pdb {}".format(pdbid, chain))
+		subprocess.run("python /mnt/e/ProteinLigand/protein_ligand_preparation/ModellingScript.py {}.pdb {}".format(pdbid, chain), shell=True)
+	
+
 	if cy == 0:
 		prGreen('{0} doesnot have missing residues'.format(name[-23:]))
 
 
-path = '/home/divya/Post-doc-projects/BindingMoaD/bmoadClassifiedProteins/'
+# path = '/home/divya/Post-doc-projects/BindingMoaD/bmoadClassifiedProteins/'
+path = '/mnt/e/ProteinLigand/bmoadInputFiles/'
 
 index = int(input(Fore.YELLOW + "Enter the index:\n" + Style.RESET_ALL))
 
@@ -318,7 +326,8 @@ f.write(string)
 
 for prefix in receptor_list:
 	f = '{0}/{1}.{2}/protein_noh_chain_{3}.pdb'.format(path,index,pdbid,prefix[-1])
-	missing(f)
+	os.chdir('{0}/{1}.{2}'.format(path,index,pdbid))
+	missing(f, pdbid, prefix[-1])
 	
 	
 
