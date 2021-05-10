@@ -24,14 +24,20 @@ parmchk2 -f prepi -i ligand_clean_h.prepi -o ligand.frcmod
 
 # cofactor parameter generation
 
-read -p "$(echo ${Yel} cofactor_exist?: [Y/N] `echo '\n> '`) $Rcol" exist
+read -p "$(echo ${Yel} cofactor_exist?: [Y/N] `echo '\n> '` $Rcol)" exist
 
 if [ "$exist" = "Y" ] 
 then
-	read -p 'cofactor_charge:' cofactor_charge
-	antechamber -fi pdb -fo prepi -i cofactor.pdb -o cofactor.prepi -c bcc -pf y -nc $cofactor_charge -at gaff2 -ek "maxcyc=0"
-	antechamber -fi pdb -fo mol2 -i cofactor.pdb -o cofactor.mol2 -c bcc -pf y -nc $cofactor_charge -at gaff2 -ek "maxcyc=0"
-	parmchk2 -f prepi -i cofactor.prepi -o cofactor.frcmod
+	read -p "$(echo ${Yel} enter the number of cofactors: `echo '\n>'` $RCol)" n_cofactor
+	i=0
+	while [ "$i" -lt "$n_cofactor" ]
+	do
+		read -p "$(echo ${Yel} cofactor_charge: `echo '\n:'` $RCol)" cofactor_charge
+		antechamber -fi pdb -fo prepi -i cofactor_${i}.pdb -o cofactor_${i}.prepi -c bcc -pf y -nc $cofactor_charge -at gaff2 -ek "maxcyc=0"
+		antechamber -fi pdb -fo mol2 -i cofactor_${i}.pdb -o cofactor_${i}.mol2 -c bcc -pf y -nc $cofactor_charge -at gaff2 -ek "maxcyc=0"
+		parmchk2 -f prepi -i cofactor_${i}.prepi -o cofactor_${i}.frcmod
+		i=$(($i+1))
+	done
 else
 	echo "${Red} Cofactor doesn't exist ${RCol}"
 fi
